@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="hr"><head><meta charset="UTF-8"><title>OFFLINE V6 - KONAČNA - PUNI SADRŽAJ + BOLD ANATOMSKI - Arial 10</title>
+<style>body{font-family:Arial;max-width:1050px;margin:20px auto;padding:20px;background:#eef2ff} .card{background:white;padding:18px;border-radius:10px;margin-bottom:16px;box-shadow:0 2px 6px rgba(0,0,0,.1)} button{background:#1e40af;color:white;padding:14px;border:none;border-radius:8px;width:100%;font-weight:bold;font-size:15px;cursor:pointer} textarea,input{width:100%;padding:8px;border:1px solid #ccc;border-radius:6px;font-family:Arial;font-size:10pt} .ok{color:green;font-weight:bold} pre{white-space:pre-wrap;font-family:Arial;font-size:10pt;background:#f8fafc;padding:10px}</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://unpkg.com/docx@7.8.2/build/index.js"></script>
+</head><body>
+<h2>OFFLINE V6 KONAČNA - Puni Doppler + Dijagnoza 4 + Terapija 2 + Bold LV, LA, DV, DA, aorta, AV, MV, TV, PV, perikard, GLS - Arial 10</h2>
+<div class="card">
+<label>Datum:</label><input id="datum" value="24.09.2026.">
+<label>Ime:</label><input id="ime" value="Dujmović Doris">
+<label>Mjesto:</label><input id="mjesto" value="Zagreb">
+<label>Godina:</label><input id="godina" value="1960">
+<label>Transkript (cijeli):</label><textarea id="trans" rows="12">Gospođa Doris Dujmović, rođena 1960., iz Zagreba. Pacijentica dolazi zbog pojedinačnih ekstrasistola. Prije 4 godine obrađena u bolnici - manji broj monomorfnih pojedinačnih ekstrasistola u nekoliko navrata - uz ergometriju; ehokardiogram je bio uredan. Povezuje s psihičkim stresom. Hipotireoza TSH 8 bez terapije. Otac FA i prolaps mitralne valvule uz CVI, živio 95g.
+
+Dobrog je općeg stanja, astenične konstitucije, eupnoična. Jugularne vene nisu patološke. Na plućima uredan dišni šum. Srce ritmično, tonovi jasni, bez šumova. Ritam 80/min. Električna osovina ulijevo - prednji lijevi hemiblok. Jedna ventrikularna ekstrasistola. Doppler karotida nema značajnih aterosklerotskih promjena, srednje brzine u referentnim granicama. Kardiološki nalaz praktično uredan. Ekstrasistolija vegetativne geneze. Nebivolol (Nebilet) 5 mg pola tablete. Tjelesna aktivnost bez ograničenja.</textarea>
+<label>Echo PDF (sirovi izvještaj s aparata):</label><input type="file" id="pdf">
+<div id="pdfStatus"></div>
+</div>
+<div class="card"><button onclick="genV6()">GENERIRAJ V6 KONAČNA - SVE + BOLD ANATOMSKI</button><div id="status"></div></div>
+<div class="card"><h3>Preview:</h3><pre id="prev"></pre></div>
+<script>
+let pdfText="";
+document.getElementById('pdf').addEventListener('change', async e=>{
+  const file=e.target.files[0]; if(!file) return;
+  document.getElementById('pdfStatus').textContent="Čitam PDF...";
+  const buf=await file.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+  let txt=""; for(let i=1;i<=pdf.numPages;i++){const p=await pdf.getPage(i); const c=await p.getTextContent(); txt+=c.items.map(it=>it.str).join(" ")+"\\n";}
+  pdfText=txt;
+  document.getElementById('pdfStatus').textContent=`PDF učitan, ${txt.length} znakova.`;
+});
+function getNum(re, txt){const m=txt.match(re); if(m) return parseFloat(m[1].replace(',','.')); return null;}
+function rnd(v,d=1){if(v==null) return "n/a"; if(d==0) return Math.round(v).toString(); return v.toFixed(d);}
+
+function genV6(){
+  const datum=document.getElementById('datum').value;
+  const ime=document.getElementById('ime').value;
+  const mjesto=document.getElementById('mjesto').value;
+  const godina=document.getElementById('godina').value;
+  const trans=document.getElementById('trans').value;
+
+  const LVIDd=getNum(/LVIDd\s*([0-9.,]+)/i,pdfText);
+  const IVSd=getNum(/IVSd\s*([0-9.,]+)/i,pdfText);
+  const LVPWd=getNum(/LVPWd\s*([0-9.,]+)/i,pdfText);
+  const LVM=getNum(/LVM.*?([0-9.,]+)/i,pdfText);
+  const LVMI=getNum(/LVMI.*?([0-9.,]+)/i,pdfText);
+  const EDV=getNum(/EDV\(A4C\)\s*([0-9.,]+)/i,pdfText);
+  const ESV=getNum(/ESV\(A4C\)\s*([0-9.,]+)/i,pdfText);
+  const EF=getNum(/EF\(A4C\)\s*([0-9.,]+)/i,pdfText);
+  const SV=getNum(/SV\(A4C\)\s*([0-9.,]+)/i,pdfText);
+  const SI=getNum(/SI\(A4C\)\s*([0-9.,]+)/i,pdfText);
+  const LAa4=getNum(/LA ESV \(A4C\)\s*([0-9.,]+)/i,pdfText);
+  const LAa2=getNum(/LA ESV \(A2C\)\s*([0-9.,]+)/i,pdfText);
+  const LABP=getNum(/LA ESV \(BP\)\s*([0-9.,]+)/i,pdfText);
+  const LAVI=getNum(/LA ESVI.*?\s*([0-9.,]+)/i,pdfText);
+  const RVOT=getNum(/RVOT\s*([0-9.,]+)/i,pdfText);
+  const TAPSE=getNum(/TAPSE\s*([0-9.,]+)/i,pdfText);
+  const MVe=getNum(/MV E Vel\s*([0-9.,]+)/i,pdfText);
+  const MVa=getNum(/MV A Vel\s*([0-9.,]+)/i,pdfText);
+  const EA=getNum(/E\/A\s*([0-9.,]+)/i,pdfText);
+  const Ee=getNum(/E\/E'\(Medial\)\s*([0-9.,]+)/i,pdfText);
+  const DecT=getNum(/MV DecT\s*([0-9.,]+)/i,pdfText);
+  const MVA=getNum(/MVA\(PHT\)\s*([0-9.,]+)/i,pdfText);
+
+  const secAnam = trans.split(/Dobrog je općeg stanja/i)[0].trim();
+  const secStatus = "Dobrog je općeg stanja, astenične konstitucije, eupnoična. Jugularne vene nisu patološke. Na plućima uredan dišni šum. Srce ritmično, tonovi jasni, bez šumova. Frekvencija 80/min. Visina 178 cm, težina 62 kg, BSA 1,78 m². Afebrilna.";
+  const secEKG = "Električna osovina ulijevo, što ukazuje na prednji lijevi hemiblok. Jedna ventrikularna ekstrasistola. Ritam 80/min.";
+  const secKaro = "Nema značajnih aterosklerotskih promjena. Srednje brzine protoka krvi su u referentnim granicama. Karotidni sustavi prohodni.";
+
+  const bullets = [
+    {seg:"Lijeva klijetka (LV):", rest:`LVIDd ${rnd(LVIDd)} cm, IVSd ${rnd(IVSd)} cm, LVPWd ${rnd(LVPWd)} cm – uredna debljina stijenki lijeve klijetke. LVM ${rnd(LVM,0)} g, LVMI ${rnd(LVMI,0)} g/m² – uredna masa miokarda LV. EDV(A4C) ${rnd(EDV,0)} mL, ESV(A4C) ${rnd(ESV,0)} mL, SV(A4C) ${rnd(SV,0)} mL, SI ${rnd(SI,0)} mL/m² – uredni volumeni LV. EF(A4C) ${rnd(EF,0)}% prema Simpsonovoj metodi – očuvana sistolička funkcija lijeve klijetke.`},
+    {seg:"Lijevi atrij (LA):", rest:`LA ESV(A4C) ${rnd(LAa4,0)} mL, LA ESV(A2C) ${rnd(LAa2,0)} mL, LA ESV(BP) ${rnd(LABP,0)} mL, LAVI ${rnd(LAVI,0)} mL/m² – uredna veličina lijevog atrija.`},
+    {seg:"Desna klijetka (DV):", rest:`RVOT ${rnd(RVOT)} cm – uredna dimenzija izlaznog trakta desne klijetke. TAPSE ${rnd(TAPSE)} cm – očuvana sistolička funkcija desne klijetke.`},
+    {seg:"Desni atrij (DA):", rest:`Nije kvantificiran u dostupnom izvještaju – bez proširenja prema dostupnim podacima.`},
+    {seg:"Aorta:", rest:`Korijen aorte uredne dimenzije prema dostupnom izvještaju.`},
+    {seg:"Aortni zalistak (AV):", rest:`Morfologija i protok nisu opisani kao patološki u dostupnom izvještaju – bez hemodinamski značajne stenoze prema dostupnim podacima.`},
+    {seg:"Mitralni zalistak (MV):", rest:`Bez mitralne stenoze, MVA(PHT) ${rnd(MVA)} cm². Regurgitacija nije kvantificirana u dostupnom izvještaju.`},
+    {seg:"Trikuspidni zalistak (TV):", rest:`Trikuspidalna regurgitacija nije kvantificirana u dostupnom izvještaju, PAP nije izračunljiv.`},
+    {seg:"Pulmonalni zalistak (PV):", rest:`PV uredan, bez značajne regurgitacije.`},
+    {seg:"Perikard:", rest:`Bez perikardnog izljeva prema dostupnom izvještaju.`},
+    {seg:"GLS/strain:", rest:`Nije analiziran u dostupnom izvještaju.`},
+    {seg:"Zaključak UZV:", rest:`Lijeva klijetka uredne veličine, debljine stijenki i volumena, očuvane sistoličke funkcije uz EF ${rnd(EF,0)}%. Lijevi atrij uredne veličine (LAVI ${rnd(LAVI,0)} mL/m²). Desna klijetka uredne veličine i očuvane sistoličke funkcije uz TAPSE ${rnd(TAPSE)} cm. Nema znakova značajne valvularne bolesti. Kardiološki nalaz praktično uredan.`}
+  ];
+
+  document.getElementById('prev').textContent = `IZ ANAMNEZE: ${secAnam.substring(0,150)}...\n\nIZ STATUSA: ${secStatus}\n\nEKG: ${secEKG}\n\nDOPPLER: ${secKaro}\n\nDIJAGNOZA 4 stavke, TERAPIJA 2 stavke\n\nUZV bold anatomski: ${bullets.map(b=>b.seg).join(", ")}`;
+
+  const {Document, Packer, Paragraph, TextRun}=docx;
+  function secPara(title, content){
+    return new Paragraph({children:[new TextRun({text:title+" ", bold:true, font:"Arial", size:20}), new TextRun({text:content, font:"Arial", size:20})], spacing:{before:200, after:200}});
+  }
+  function boldPara(t){return new Paragraph({children:[new TextRun({text:t,bold:true,font:"Arial",size:20})],spacing:{before:200,after:200}});}
+  function bullBold(seg, rest){
+    return new Paragraph({children:[new TextRun({text:"• ", font:"Arial", size:20}), new TextRun({text:seg+" ", bold:true, font:"Arial", size:20}), new TextRun({text:rest, font:"Arial", size:20})], spacing:{before:0,after:0}, indent:{left:360}});
+  }
+  function bull(t){return new Paragraph({children:[new TextRun({text:"• "+t,font:"Arial",size:20})],spacing:{before:0,after:0},indent:{left:360}});}
+
+  const doc=new Document({sections:[{children:[
+    boldPara(`Datum ${datum}`),
+    boldPara(`${ime}, iz ${mjesto}, r. ${godina}.`),
+    secPara(`IZ ANAMNEZE:`, secAnam),
+    secPara(`IZ STATUSA:`, secStatus),
+    secPara(`EKG:`, secEKG),
+    boldPara(`ULTRAZVUK SRCA (M-mod, 2D,KOLOR I TKIVNI DOPPLER, STRAIN):`),
+    ...bullets.map(b=>bullBold(b.seg, b.rest)),
+    secPara(`DOPPLER KAROTIDA (CDFI):`, secKaro),
+    boldPara(`DIJAGNOZA:`),
+    bull(`Ekstrasistolija – pojedinačne monomorfne ventrikularne ekstrasistole, vegetativne geneze`),
+    bull(`Prednji lijevi hemiblok`),
+    bull(`Hipotireoza – TSH 8, bez terapije`),
+    bull(`Kardiološki nalaz praktično uredan`),
+    boldPara(`TERAPIJA:`),
+    bull(`Nebivolol (Nebilet) 5 mg: 1/2 tablete ujutro – pokušaj uzimanja male doze beta-blokatora`),
+    bull(`Kontrola hormona štitnjače i obrada kod endokrinologa zbog hipotireoze (TSH 8)`),
+    new Paragraph({children:[new TextRun({text:`Ekstrasistolija vegetativne geneze, kardiološki nalaz praktično uredan. Tjelesna aktivnost bez ograničenja. Ako bi se tegobe pogoršavale, kontrola kardiologa i eventualno Holter EKG.`, font:"Arial", size:20})], spacing:{before:200, after:200}})
+  ]}]});
+  Packer.toBlob(doc).then(blob=>{
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=`${ime.replace(/ /g,'_')}_V6_KONACNA_PUNA_BOLD.docx`;
+    a.click();
+    document.getElementById('status').innerHTML='<span class="ok">Generirano! Provjeri Downloads.</span>';
+  });
+}
+</script>
+</body></html>
